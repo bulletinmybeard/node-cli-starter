@@ -171,12 +171,19 @@ export class PromptsClass {
     }
 
     public inputValidation(promptName: string, value: any): boolean {
-        const stringLength: number = `${value}`.length
+        let regex
         switch (promptName) {
+            case 'profileName':
+                regex = /^([-0-9a-z]+)$/gmi
+                if (!regex.test(value)) {
+                    console.log(`\n\r Profile name '${value}' is invalid! (${regex})`)
+                    return false
+                }
+                break
             case 'arn':
-                const arnRegex = /^arn:[a-z0-9-]+:([a-z0-9-]+)?:[a-z0-9-]+:([0-9]{12}):([a-zA-Z0-9-_\/]+)?$/gm
-                if (!arnRegex.test(value)) {
-                    console.log(`\n\r ARN '${value}' is invalid!`)
+                regex = /^arn:[a-z0-9-]+:([a-z0-9-]+)?:[a-z0-9-]+:([0-9]{12}):([a-zA-Z0-9-_\/]+)?$/gmi
+                if (!regex.test(value)) {
+                    console.log(`\n\r ARN '${value}' is invalid! (${regex})`)
                     return false
                 }
                 break

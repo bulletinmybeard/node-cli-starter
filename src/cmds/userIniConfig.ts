@@ -78,11 +78,6 @@ export class UserIniConfigClass {
      * @return {object}
      */
     public async setIniConfigFile(name: string, cmds: any, args: any) {
-        // console.log('[setConfigFile]')
-        // console.log('[setConfigFile] name: ', name)
-        // console.log('[setConfigFile] cmds: ', cmds)
-        // console.log('[setConfigFile] args: ', args)
-
         let prefix
         let profileName
         if (cmds.length === 3
@@ -96,14 +91,14 @@ export class UserIniConfigClass {
         console.log('[setConfigFile] prefix: ', prefix)
         console.log('[setConfigFile] profileName: ', profileName)
 
-        // const profileName = (cmds.length === 3
-        //     && (isString(cmds[2]) && cmds[2].length > 1))
-        //     ? cmds[2]
-        //     : await this.prompts.input({
-        //         message: 'Name of the cluster:',
-        //         validate: (v) => this.prompts.inputValidation('arn', v)
-        //     })
-        // console.log('profileName: ', profileName)
+        if (!profileName) {
+            await this.prompts.input({
+                message: 'Name of the profile:',
+                validate: (input) => this.prompts.inputValidation('profileName', input)
+            })
+        } else if (profileName && !this.prompts.inputValidation('profileName', profileName)) {
+            process.exit(0)
+        }
     }
 
     /**
