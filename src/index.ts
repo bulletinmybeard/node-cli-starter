@@ -1,7 +1,7 @@
 #!/usr/bin/env node
 
-import { printHelp, execCommand } from './cli-functions'
-import { readCLIargs } from './utils'
+import { processCommands } from './cli-functions'
+import { readCLIargs, printHelp } from './utils'
 
 (async () => {
     /**
@@ -14,8 +14,8 @@ import { readCLIargs } from './utils'
         printHelp(cmds)
     }
 
-    await execCommand(cmds, args)
+    await processCommands(cmds, args)
 })().catch(err => {
     console.log(err)
-    process.exit(0)
+    printHelp()
 })

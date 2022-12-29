@@ -1,96 +1,9 @@
 import { execSync } from 'child_process'
 import * as fs from 'fs'
 import * as os from 'os'
-import * as ini from 'ini'
-import { objectToObject, convertString, isUndefined, typecast } from './'
 
-/**
- * Reads the config file within the user its home directory.
- * @param {string} name
- * @param {object} args
- * @return {object}
- */
-export const setIniConfigFile = async (name: string, args: any) => {
-    // TODO: Check arguments
-    console.log('[setConfigFile]')
-    console.log('[setConfigFile] name: ', name)
-    console.log('[setConfigFile] args: ', args)
-}
-
-/**
- * Reads the config file within the user its home directory.
- * @param {string} name
- * @param {object} cmds
- * @return {void}
- */
-export const readIniConfigFile = async (name: string, cmds: any): Promise<void> => {
-    const configFilePath = resolveHomeFolderPath('~/' + name)
-    try {
-        if (!fs.existsSync(configFilePath)) {
-            console.log('User config not found: ~/' + name)
-            process.exit(0)
-        }
-        const config = objectToObject(ini.parse(fs.readFileSync(configFilePath, 'utf8')))
-        const userConfig = Object
-            .entries(config)
-            .reduce((acc, [name, profile]) => {
-                const profileName = name.replace(/profile\s+/, '')
-                acc[profileName] = profile
-                return acc
-            }, {})
-        console.log('User config found: ~/' + name)
-        if (cmds.length === 3
-            && (cmds[2] in userConfig)) {
-            console.log(userConfig[cmds[2]])
-        } else {
-            console.log(userConfig)
-        }
-    } catch (err) {
-        console.log('User config read error: ', err)
-        process.exit(0)
-    }
-}
-
-/**
- * Writes the config file within the user its home directory.
- * @export
- * @param {string} name
- * @param {object} data
- * @return {void}
- */
-export const writeIniConfigFile = async (name: string, data: any): Promise<void> => {
-    const configFilePath = resolveHomeFolderPath('~/' + name)
-    try {
-        fs.writeFileSync(configFilePath, ini.stringify(data), {
-            encoding: 'utf8'
-        })
-        console.log('User config created: ~/' + name)
-    } catch (err) {
-        console.log('User config creation error: ', err)
-        process.exit(0)
-    }
-}
-
-/**
- * Deletes the config file within the user its home directory.
- * @export
- * @param {string} name
- * @return {void}
- */
-export const deleteIniConfigFile = async (name: string): Promise<void> => {
-    const configFilePath = resolveHomeFolderPath('~/' + name)
-    try {
-        if (fs.existsSync(configFilePath)) {
-            fs.unlinkSync(configFilePath)
-            console.log('User config deleted: ~/' + name)
-        } else {
-            console.log('User config not found: ~/' + name)
-        }
-    } catch (err) {
-        console.log('User config deletion error: ', err)
-        process.exit(0)
-    }
-}
+import { convertString, isUndefined, typecast } from './'
+import { KUBECTL_CMDS } from '../constants'
 
 /**
  * Identifies a path.
@@ -218,4 +131,119 @@ export const readCLIargs = (): any => {
     }
 }
 
+export const readKubeConfig = () => {
+    let stdout = cliExecSync(KUBECTL_CMDS.GET_CONFIG)
+    if (!stdout) {
+        console.log(`Command '${KUBECTL_CMDS.GET_CONFIG}' error.`)
+        process.exit(0)
+    }
+    stdout = JSON.parse(stdout)
+    return {
+        ...stdout,
+        ...{
+            clusters: stdout.clusters.map(cluster => cluster.name),
+            // 'current-context': stdout?.['current-context']
+        },
+    }
+}
 
+export const getClusterNames = () => {
+    const stdout = cliExecSync(KUBECTL_CMDS.GET_CONTEXTS)
+    if (!stdout) {
+        return []
+    }
+    return stdout
+        .split('\n')
+        .reduce((acc, line, idx) => {
+            line = line.trim()
+            if (`${line}`.length > 0
+                && idx > 0) {
+                const [currentName, cluster, authInfo, namespace] = line.split(/\s+/)
+                acc[cluster] = {
+                    currentName,
+                    authInfo,
+                    namespace,
+                }
+            }
+            return acc
+        }, {})
+}
+
+/**
+ * Run Docker login command.
+ *
+ * @example
+ * this.runDockerLogin('aws', 'eu-west-1', 070514396465)
+ * this.runDockerLogin('gcp', 'europe-west1', 'az-bi-web-prd')
+ *
+ * @param {string} provider
+ * @param {string} region
+ * @param {string} id
+ */
+export const runDockerLogin = (provider: string, region: string, id: string | number) => {
+    const command: string[] = (provider === 'aws')
+        ? [
+            'aws',
+            'ecr',
+            'get-login-password',
+            '--region',
+            region,
+            '|',
+            'docker',
+            'login',
+            '--username',
+            'AWS',
+            '--password-stdin',
+            `${id}.dkr.ecr.${region}.amazonaws.com`,
+        ]
+        : [
+            'gcloud',
+            'auth',
+            'configure-docker',
+            region
+        ]
+    const stdout = cliExecSync(command)
+    console.log('[runDockerLogin] stdout: ', stdout)
+    return stdout
+}
+
+
+export const commandNotFound = (cmds, args, format: string = 'text') => {
+    console.log('Command not found')
+    printHelp(cmds, format)
+}
+
+export const printHelp = (cmds?: any, format: string = 'text'): void => {
+
+    // switch (format) {
+    //     case 'json':
+    //         console.log(util.inspect({
+    //             ...{ version },
+    //         }))
+    //         break
+    //     case 'yaml':
+    //         break
+    //     case 'text':
+    //     default:
+    //         // const commandList = this.commandList
+    //         // const globalArgs = this.commandList['_'].args
+    //
+    //         // Object
+    //         //     .entries(commandList)
+    //         //     .forEach(([key, value]) => {
+    //         //         if (key === '_') {
+    //         //             return
+    //         //         }
+    //         //         console.log(`# ${value['desc']}`)
+    //         //         Object
+    //         //             .entries(value = {...globalArgs, ...value['args']})
+    //         //             .forEach(([key_, value_]) => {
+    //         //                 console.log(`${binName} ${key} --${key_} // ${value_['desc']}`.trim())
+    //         //             })
+    //         //         console.log()
+    //         //     })
+    //         break
+    // }
+
+    process.exit(0)
+}
