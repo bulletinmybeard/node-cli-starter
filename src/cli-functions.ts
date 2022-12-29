@@ -9,17 +9,26 @@ const configName = '.ncsrc'
  * @param {object} args
  */
 export const processCommands = async (cmds: any, args: any) => {
+
+    const userIniConfig = new UserIniConfigClass(configName, cmds, args)
+
+    const commandList = {
+        ...userIniConfig.commandList
+    }
+
+    if (cmds.length === 0) {
+        commandNotFound(commandList)
+    }
+
     const commandGroup: string = `${cmds[0]}-${cmds[1]}`
     switch (commandGroup) {
         case 'set-config':
         case 'unset-config':
         case 'show-config':
-            await UserIniConfigClass
-                .getInstance(configName, cmds, args)
-                .checkAndExecute(commandGroup)
+            await userIniConfig.checkAndExecute(commandGroup)
             break
         default:
-            commandNotFound(cmds, args)
+            commandNotFound(commandList)
     }
 }
 

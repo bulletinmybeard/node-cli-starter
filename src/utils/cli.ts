@@ -78,7 +78,7 @@ export const readCLIargs = (): any => {
         .reduce((cmds, cmd): any => {
             if (cmd &&
                 cmd.indexOf('--') === -1) {
-                const matches: string[] | null = cmd.match(new RegExp('^([-a-z]+)$', 'i'))
+                const matches: string[] | null = cmd.match(new RegExp('^([\:-a-z]+)$', 'i'))
                 if (matches !== null) {
                     cmds.push(cmd)
                 }
@@ -208,12 +208,12 @@ export const runDockerLogin = (provider: string, region: string, id: string | nu
 }
 
 
-export const commandNotFound = (cmds, args, format: string = 'text') => {
+export const commandNotFound = (commandList?: any, format: string = 'text') => {
     console.log('Command not found')
-    printHelp(cmds, format)
+    printHelp(commandList, format)
 }
 
-export const printHelp = (cmds?: any, format: string = 'text'): void => {
+export const printHelp = (commandList?: any, format: string = 'text'): void => {
 
     // switch (format) {
     //     case 'json':

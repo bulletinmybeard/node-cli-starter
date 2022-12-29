@@ -6,7 +6,7 @@ import {
     PromptsClass,
     resolveHomeFolderPath,
     commandNotFound,
-    printHelp
+    isString,
 } from '../utils'
 
 /**
@@ -20,6 +20,15 @@ export class UserIniConfigClass {
     private readonly args: any
     private readonly prompts: any
     private readonly configName: string
+
+    public readonly commandList = {
+        actions: ['set', 'unset', 'show'],
+        commands: {
+            config: {
+                name: '',
+            },
+        },
+    }
 
     /**
      * @constructor
@@ -40,17 +49,12 @@ export class UserIniConfigClass {
 
     public async checkAndExecute(command: string) {
 
-        const actions: string[] = ['set', 'unset', 'show']
-        const commands = {
-            config:{},
+        if (!this.commandList.actions.includes(this.cmds[0])) {
+            commandNotFound(this.commandList)
         }
 
-        if (!actions.includes(this.cmds[0])) {
-            commandNotFound(this.cmds, this.args)
-        }
-
-        if (!Object.keys(commands).includes(this.cmds[1])) {
-            commandNotFound(this.cmds, this.args)
+        if (!Object.keys(this.commandList.commands).includes(this.cmds[1])) {
+            commandNotFound(this.commandList)
         }
 
         switch(command) {
@@ -74,16 +78,32 @@ export class UserIniConfigClass {
      * @return {object}
      */
     public async setIniConfigFile(name: string, cmds: any, args: any) {
-        console.log('[setConfigFile]')
-        console.log('[setConfigFile] name: ', name)
-        console.log('[setConfigFile] cmds: ', cmds)
-        console.log('[setConfigFile] args: ', args)
+        // console.log('[setConfigFile]')
+        // console.log('[setConfigFile] name: ', name)
+        // console.log('[setConfigFile] cmds: ', cmds)
+        // console.log('[setConfigFile] args: ', args)
 
-        const test = await this.prompts.input({
-            message: 'Name of the cluster:',
-            validate: (v) => this.prompts.inputValidation('arn', v)
-        })
-        console.log('test____________: ', test)
+        let prefix
+        let profileName
+        if (cmds.length === 3
+            && (isString(cmds[2]) && cmds[2].length > 1)) {
+            if (cmds[2].indexOf(':') > -1) {
+                ([prefix, profileName] = cmds[2].split(':'))
+            } else {
+                profileName = cmds[2]
+            }
+        }
+        console.log('[setConfigFile] prefix: ', prefix)
+        console.log('[setConfigFile] profileName: ', profileName)
+
+        // const profileName = (cmds.length === 3
+        //     && (isString(cmds[2]) && cmds[2].length > 1))
+        //     ? cmds[2]
+        //     : await this.prompts.input({
+        //         message: 'Name of the cluster:',
+        //         validate: (v) => this.prompts.inputValidation('arn', v)
+        //     })
+        // console.log('profileName: ', profileName)
     }
 
     /**
@@ -159,10 +179,5 @@ export class UserIniConfigClass {
             console.log('User config deletion error: ', err)
             process.exit(0)
         }
-    }
-
-    public commandNotFound(cmds, args, format: string = 'text') {
-        console.log('Command not found')
-        printHelp(cmds, format)
     }
 }
