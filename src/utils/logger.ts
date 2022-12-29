@@ -343,7 +343,7 @@ export class LoggerClass {
                     this.log('LogLevel changed to:', this.levelName)
                 }
             }
-            this.log('LogLevelStrict set to:', this.options.levelStrict)
+            // this.log('LogLevelStrict set to:', this.options.levelStrict)
         }
     }
 

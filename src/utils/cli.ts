@@ -6,12 +6,30 @@ import { objectToObject, convertString, isUndefined, typecast } from './'
 
 /**
  * Reads the config file within the user its home directory.
- * @param {string] }name
+ * @param {string} name
+ * @param {object} args
  * @return {object}
  */
-export const readConfigFile = (name: string) => {
+export const setIniConfigFile = async (name: string, args: any) => {
+    // TODO: Check arguments
+    console.log('[setConfigFile]')
+    console.log('[setConfigFile] name: ', name)
+    console.log('[setConfigFile] args: ', args)
+}
+
+/**
+ * Reads the config file within the user its home directory.
+ * @param {string} name
+ * @param {object} cmds
+ * @return {void}
+ */
+export const readIniConfigFile = async (name: string, cmds: any): Promise<void> => {
     const configFilePath = resolveHomeFolderPath('~/' + name)
     try {
+        if (!fs.existsSync(configFilePath)) {
+            console.log('User config not found: ~/' + name)
+            process.exit(0)
+        }
         const config = objectToObject(ini.parse(fs.readFileSync(configFilePath, 'utf8')))
         const userConfig = Object
             .entries(config)
@@ -21,9 +39,55 @@ export const readConfigFile = (name: string) => {
                 return acc
             }, {})
         console.log('User config found: ~/' + name)
-        return userConfig
+        if (cmds.length === 3
+            && (cmds[2] in userConfig)) {
+            console.log(userConfig[cmds[2]])
+        } else {
+            console.log(userConfig)
+        }
     } catch (err) {
         console.log('User config read error: ', err)
+        process.exit(0)
+    }
+}
+
+/**
+ * Writes the config file within the user its home directory.
+ * @export
+ * @param {string} name
+ * @param {object} data
+ * @return {void}
+ */
+export const writeIniConfigFile = async (name: string, data: any): Promise<void> => {
+    const configFilePath = resolveHomeFolderPath('~/' + name)
+    try {
+        fs.writeFileSync(configFilePath, ini.stringify(data), {
+            encoding: 'utf8'
+        })
+        console.log('User config created: ~/' + name)
+    } catch (err) {
+        console.log('User config creation error: ', err)
+        process.exit(0)
+    }
+}
+
+/**
+ * Deletes the config file within the user its home directory.
+ * @export
+ * @param {string} name
+ * @return {void}
+ */
+export const deleteIniConfigFile = async (name: string): Promise<void> => {
+    const configFilePath = resolveHomeFolderPath('~/' + name)
+    try {
+        if (fs.existsSync(configFilePath)) {
+            fs.unlinkSync(configFilePath)
+            console.log('User config deleted: ~/' + name)
+        } else {
+            console.log('User config not found: ~/' + name)
+        }
+    } catch (err) {
+        console.log('User config deletion error: ', err)
         process.exit(0)
     }
 }
@@ -85,7 +149,7 @@ export const resolveHomeFolderPath = (folderPath: string): string => {
  * Read all CLI commands and arguments.
  * @export
  */
-export const readCLI = (): any => {
+export const readCLIargs = (): any => {
     /**
      * Lowercase all arguments.
      */
@@ -153,3 +217,5 @@ export const readCLI = (): any => {
             || commands.includes('help')),
     }
 }
+
+

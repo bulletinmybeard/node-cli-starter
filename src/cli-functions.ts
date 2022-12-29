@@ -1,8 +1,9 @@
-import { LoggerClass } from './utils'
+import { LoggerClass, readIniConfigFile, setIniConfigFile, deleteIniConfigFile } from './utils'
 
 const logger = LoggerClass.getInstance()
 
 const binaryName = 'kt'
+const configName = '.ncsrc'
 const actions: string[] = ['set', 'unset', 'show']
 const commands = {
     config:{},
@@ -13,7 +14,7 @@ const commands = {
  * @param {object} cmds
  * @param {object} args
  */
-export const execCommand = (cmds: any, args: any) => {
+export const execCommand = async (cmds: any, args: any) => {
 
     if (!actions.includes(cmds[0])) {
         commandNotFound(cmds, args)
@@ -25,13 +26,13 @@ export const execCommand = (cmds: any, args: any) => {
 
     switch (`${cmds[0]}-${cmds[1]}`) {
         case 'set-config':
-            logger.debug('cmd: set-config: ', cmds[2])
+            await setIniConfigFile(configName, args)
             break
         case 'unset-config':
-            logger.debug('cmd: unset-config: ', cmds[2])
+            await deleteIniConfigFile(configName)
             break
         case 'show-config':
-            logger.debug('cmd: show-config: ', cmds[2])
+            await readIniConfigFile(configName, cmds)
             break
         default:
             commandNotFound(cmds, args)
