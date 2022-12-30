@@ -1,6 +1,6 @@
 {
   "name": "node-cli-starter",
-  "description": "",
+  "description": "Starter repository for building command line script with Node.js",
   "bin": "bin/index.js",
   "version": "1.0.0",
   "main": "./bin/index.js",
