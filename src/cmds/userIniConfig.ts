@@ -5,7 +5,6 @@ import { BaseClass } from './'
 
 import {
     objectToObject,
-    PromptsClass,
     resolveHomeFolderPath,
     commandNotFound,
     isString,
@@ -23,7 +22,6 @@ export interface UserIniCommandList {
     actions: string[];
     commands: UserIniCommands;
 }
-
 
 /**
  * @class UserIniConfigClass
@@ -91,8 +89,8 @@ export class UserIniConfigClass extends BaseClass {
                 profileName = cmds[2]
             }
         }
-        console.log('[setConfigFile] prefix: ', prefix)
-        console.log('[setConfigFile] profileName: ', profileName)
+        this.logger.debug('[setConfigFile] prefix: ', prefix)
+        this.logger.debug('[setConfigFile] profileName: ', profileName)
 
         if (!profileName) {
             await this.prompts.input({
@@ -114,7 +112,7 @@ export class UserIniConfigClass extends BaseClass {
         const configFilePath = resolveHomeFolderPath('~/' + name)
         try {
             if (!fs.existsSync(configFilePath)) {
-                console.log('User config not found: ~/' + name)
+                this.logger.error('User config not found: ~/' + name)
                 process.exit(0)
             }
             const config = objectToObject(ini.parse(fs.readFileSync(configFilePath, 'utf8')))
@@ -126,7 +124,7 @@ export class UserIniConfigClass extends BaseClass {
                     return acc
                 }, {})
 
-            console.log('User config found: ~/' + name)
+            this.logger.debug('User config found: ~/' + name)
             if (cmds.length === 3
                 && (cmds[2] in userConfig)) {
                 console.log(userConfig[cmds[2]])
@@ -138,7 +136,7 @@ export class UserIniConfigClass extends BaseClass {
                 console.log(userConfig[profile])
             }
         } catch (err) {
-            console.log('User config read error: ', err)
+            this.logger.error('User config read error: ', err)
             process.exit(0)
         }
     }
@@ -156,9 +154,9 @@ export class UserIniConfigClass extends BaseClass {
             fs.writeFileSync(configFilePath, ini.stringify(data), {
                 encoding: 'utf8'
             })
-            console.log('User config created: ~/' + name)
+            this.logger.debug('User config created: ~/' + name)
         } catch (err) {
-            console.log('User config creation error: ', err)
+            this.logger.error('User config creation error: ', err)
             process.exit(0)
         }
     }
@@ -174,12 +172,12 @@ export class UserIniConfigClass extends BaseClass {
         try {
             if (fs.existsSync(configFilePath)) {
                 fs.unlinkSync(configFilePath)
-                console.log('User config deleted: ~/' + name)
+                this.logger.debug('User config deleted: ~/' + name)
             } else {
-                console.log('User config not found: ~/' + name)
+                this.logger.debug('User config not found: ~/' + name)
             }
         } catch (err) {
-            console.log('User config deletion error: ', err)
+            this.logger.error('User config deletion error: ', err)
             process.exit(0)
         }
     }

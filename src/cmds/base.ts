@@ -1,4 +1,6 @@
-import { PromptsClass } from '../utils'
+import { PromptsClass } from '../utils/prompts'
+import { LoggerClass } from '../utils/logger'
+
 import { JSONObject } from '../interfaces'
 
 /**
@@ -11,6 +13,7 @@ export class BaseClass {
     public readonly cmds: string[]
     public readonly args: JSONObject
 
+    public readonly logger: any
     public readonly prompts: any
 
     /**
@@ -20,6 +23,7 @@ export class BaseClass {
         this.cmds = (cmds || [])
         this.args = (args || {})
         this.prompts = new PromptsClass(this.cmds, this.args)
+        this.logger = new LoggerClass()
     }
 
     public static getInstance(cmds?: any, args?: any): BaseClass {

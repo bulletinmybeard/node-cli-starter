@@ -1,4 +1,4 @@
-import {isObject, isUndefined, mergeOptions, objectToMap} from './'
+import {isObject, isUndefined, objectToMap} from './'
 import * as clc from 'cli-color'
 
 /**
@@ -28,9 +28,6 @@ const stylesNode: any = objectToMap({
  * @class LoggerClass
  */
 export class LoggerClass {
-
-    private static instance: LoggerClass
-
     /**
      * Default `log level` is currently set to `error` and shows all log levels.
      * @private
@@ -70,10 +67,10 @@ export class LoggerClass {
         /**
          * Merge module config from global SDK config against defaults.
          */
-        this.options = mergeOptions({
+        this.options = {...{
             levelStrict: false,
             level: this._level,
-        }, options)
+        }, ...options}
 
         this._logLevels = [
             'error',
@@ -84,13 +81,6 @@ export class LoggerClass {
         ]
         this._defaultTargetLevel = 'log'
         this.validateAndUpdateLogLevel()
-    }
-
-    public static getInstance(options?): LoggerClass {
-        if (!LoggerClass.instance) {
-            LoggerClass.instance = new LoggerClass(options)
-        }
-        return LoggerClass.instance
     }
 
     /**
