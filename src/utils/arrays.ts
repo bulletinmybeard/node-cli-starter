@@ -1,4 +1,4 @@
-import { isTypeOf, isUndefined } from './misc'
+import { isTypeOf } from './misc'
 
 /**
  * Simple check if the given `value` is an Array.
