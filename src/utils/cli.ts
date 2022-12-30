@@ -3,7 +3,6 @@ import * as fs from 'fs'
 import * as os from 'os'
 
 import { convertString, isUndefined, typecast } from './'
-import { KUBECTL_CMDS } from '../constants'
 import { JSONObject } from '../interfaces'
 
 interface IfileFolderStats {

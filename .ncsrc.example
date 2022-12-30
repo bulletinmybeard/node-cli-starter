@@ -1,0 +1,9 @@
+[global]
+
+[export]
+target_dir="~/exports"
+protect="true"
+
+[transcode]
+format="mp3"
+bitrate="128kb"
