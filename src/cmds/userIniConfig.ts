@@ -122,12 +122,17 @@ export class UserIniConfigClass {
                     acc[profileName] = profile
                     return acc
                 }, {})
+
             console.log('User config found: ~/' + name)
             if (cmds.length === 3
                 && (cmds[2] in userConfig)) {
                 console.log(userConfig[cmds[2]])
             } else {
-                console.log(userConfig)
+                const profile = await this.prompts.list({
+                    message: 'Pick a profile:',
+                    choices: Object.keys(userConfig).filter((profile) => profile !== 'global')
+                })
+                console.log(userConfig[profile])
             }
         } catch (err) {
             console.log('User config read error: ', err)
