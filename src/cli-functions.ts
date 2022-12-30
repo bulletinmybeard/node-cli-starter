@@ -1,34 +1,27 @@
-import { UserIniConfigClass } from './cmds/userIniConfig'
-import { commandNotFound } from './utils'
-
-const configName = '.ncsrc'
+import { UserIniConfigClass, UserIniCommandList } from './cmds/userIniConfig'
+import { buildCommandList, commandNotFound } from './utils'
+import { JSONObject } from './interfaces'
 
 /**
- *
- * @param {string[]} cmds
- * @param {object} args
+ * @param {JSONObject} cmds
+ * @param {string[]} args
  */
-export const processCommands = async (cmds: any, args: any) => {
-
-    const userIniConfig = new UserIniConfigClass(configName, cmds, args)
-
-    const commandList = {
-        ...userIniConfig.commandList
-    }
+export const processCommands = async (cmds: JSONObject, args: any): Promise<void> => {
 
     if (cmds.length === 0) {
-        commandNotFound(commandList)
+        commandNotFound()
     }
 
     const commandGroup: string = `${cmds[0]}-${cmds[1]}`
-    switch (commandGroup) {
-        case 'set-config':
-        case 'unset-config':
-        case 'show-config':
-            await userIniConfig.checkAndExecute(commandGroup)
+    const userIni: any = new UserIniConfigClass('.ncsrc', cmds, args)
+
+    switch (true) {
+        case buildCommandList(userIni.commandList).includes(commandGroup):
+            await userIni.checkAndExecute(commandGroup)
             break
         default:
-            commandNotFound(commandList)
+            commandNotFound()
+            break
     }
 }
 

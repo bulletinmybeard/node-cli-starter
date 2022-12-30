@@ -123,7 +123,7 @@ export const hasEvery = (sourceValues: any, targetArray: string[]): boolean => {
     })
 }
 
-export const typecast = (source?: any, targetType?: any) => {
+export const typecast = (source: any, targetType?: any): string => {
     /**
      * Extract the type from the source.
      */
@@ -165,7 +165,6 @@ export const typecast = (source?: any, targetType?: any) => {
      */
     if (typeof targetType !== 'undefined') {
         const sourceHasWildcard = (source.indexOf('*') > -1)
-        console.log('sourceHasWildcard: ', sourceHasWildcard)
 
         switch (`${sourceType}-${targetType}`) {
             case 'object-string':

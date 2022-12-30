@@ -1,6 +1,8 @@
 import * as ini from 'ini'
 import * as fs from 'fs'
 
+import { BaseClass } from './'
+
 import {
     objectToObject,
     PromptsClass,
@@ -9,22 +11,32 @@ import {
     isString,
 } from '../utils'
 
+interface UserIniArguments {
+    name: string;
+}
+
+interface UserIniCommands {
+    config: UserIniArguments;
+}
+
+export interface UserIniCommandList {
+    actions: string[];
+    commands: UserIniCommands;
+}
+
+
 /**
  * @class UserIniConfigClass
  */
-export class UserIniConfigClass {
+export class UserIniConfigClass extends BaseClass {
 
-    private static instance: UserIniConfigClass
-
-    private readonly cmds: string[]
-    private readonly args: any
-    private readonly prompts: any
     private readonly configName: string
 
-    public readonly commandList = {
+    public readonly commandList: UserIniCommandList = {
         actions: ['set', 'unset', 'show'],
         commands: {
             config: {
+                // Arguments
                 name: '',
             },
         },
@@ -34,20 +46,11 @@ export class UserIniConfigClass {
      * @constructor
      */
     constructor(configName: string, cmds?: any, args?: any) {
+        super(cmds, args)
         this.configName = configName
-        this.cmds = (cmds || [])
-        this.args = (args || {})
-        this.prompts = PromptsClass.getInstance(this.cmds, this.args)
     }
 
-    public static getInstance(configName: string, cmds?: any, args?: any): UserIniConfigClass {
-        if (!UserIniConfigClass.instance) {
-            UserIniConfigClass.instance = new UserIniConfigClass(configName, cmds, args)
-        }
-        return UserIniConfigClass.instance
-    }
-
-    public async checkAndExecute(command: string) {
+    public async checkAndExecute(command: string): Promise<void> {
 
         if (!this.commandList.actions.includes(this.cmds[0])) {
             commandNotFound(this.commandList)

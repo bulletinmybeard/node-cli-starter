@@ -1,4 +1,5 @@
 import { isTypeOf } from './misc'
+import { JSONObject } from '../interfaces'
 
 /**
  * Simple check if the given `value` is an Object.
@@ -34,7 +35,7 @@ export const objectToMap = (values: any): Map<string, any> => {
  * @param {any} values - Map to convert
  * @return An object of the map
  */
-export const mapToObject = (values: Map<string, any>): any => {
+export const mapToObject = (values: Map<string, any>): JSONObject => {
     let obj = {}
     for (let [key, value] of values.entries()) {
         if (isTypeOf(value, 'map')) {
@@ -46,7 +47,7 @@ export const mapToObject = (values: Map<string, any>): any => {
     return obj
 }
 
-export const objectToObject = (values: any): any => {
+export const objectToObject = (values: JSONObject): JSONObject => {
     let obj = {}
     for (const [key, value] of Object.entries(values)) {
         if (isTypeOf(value, 'object')) {
@@ -58,22 +59,20 @@ export const objectToObject = (values: any): any => {
     return obj
 }
 
-export const cloneObject = (values: any): any => {
+export const cloneObject = (values: JSONObject): JSONObject => {
     return structuredClone(values)
 }
 
-export const objectSortByKeys = (values: any): any => {
+export const objectSortByKeys = (values: JSONObject): JSONObject => {
     return Object.keys(values)
         .sort()
         .reduce((acc, key) => {
             const value = values[key]
             if (isTypeOf(value, 'object')) {
-                // @ts-ignore
                 acc[key] = objectSortByKeys(value)
             } else {
                 acc[key] = value
             }
             return acc
         }, {});
-
 }
