@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-import { processCommands } from './cli-functions'
+import { processCommands } from './cli'
 import { readCLIargs, IreadCLIargs, printHelp } from './utils'
 
 (async () => {
